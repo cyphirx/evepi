@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><Generic Page></title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+<header>
+    <div class="container">
+        <h1 class="logo">Generic Page</h1>
+        <strong>
+            <nav>
+                <ul class="menu">
+                    <li><a href="{{ url_for('default_display') }}">Home</a></li>
+                    {% if 'email' in session %}
+
+                        <li><a href="#">Top</a></li>
+                        <li><a href="#">Top</a>
+                            <ul class="submenu">
+                                <li><a href="#">Sub</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="#">Admin</a>
+                            <ul class="submenu">
+                                <li><a href="">Action</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li><a href="{{ url_for('signin') }}">Sign in</a></li>
+                    {% endif %}
+                </ul>
+
+            </nav>
+        </strong>
+    </div>
+</header>
+<div class="container">
+    {% block content %}
+    {% endblock %}
+</div>
+
+</body>
+</html>
+
