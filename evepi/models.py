@@ -11,6 +11,15 @@ class Table(db.Model):
     Value2 = db.Column(db.Text, unique=False)
 
 
+class APIs(db.Model):
+    id = db.Column(db.Integer, unique=True, primary_key=True)
+    keyID = db.Column(db.Integer, unique=True)
+    vCode = db.Column(db.Text, unique=True)
+
+class character(db.Model):
+    id = db.Column(db.Integer, unique=True, primary_key=True)
+    characterID = db.Column(db.Integer, unique=True)
+
 def initial_db():
     from flask import Flask
     from sqlalchemy import exists
