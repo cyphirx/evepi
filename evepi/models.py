@@ -24,10 +24,13 @@ class User(db.Model):
 
 
 class APIs(db.Model):
+    __tablename__ = "apis"
     id = db.Column(db.Integer, unique=True, primary_key=True)
     keyID = db.Column(db.Integer, unique=True)
     vCode = db.Column(db.Text, unique=True)
     user_id = db.Column(db.Integer, unique=False)
+    status = db.Column(db.Boolean, unique=False)
+    last_checked = db.Column(db.DateTime, unique=False)
 
 class Character(db.Model):
     id = db.Column(db.Integer, unique=True, primary_key=True)
