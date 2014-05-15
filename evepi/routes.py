@@ -1,8 +1,8 @@
 from evepi import app
 import os
-from evepi.forms import SigninForm
+from evepi.forms import SigninForm, SignupForm
 
-from models import db, Table, initial_db
+from models import db, initial_db, User
 from flask import render_template, Markup, session, redirect, url_for, request, jsonify, abort
 
 from ConfigParser import ConfigParser
@@ -54,23 +54,52 @@ def default_display():
     return render_template('index.html')
 
 
+@app.route('/signout')
+def signout():
+    if 'username' not in session:
+        return redirect(url_for('signin'))
+
+    session.pop('username', None)
+    return redirect(url_for('default_display'))
+
+
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    form = SignupForm()
+
+    if request.method == 'POST':
+        if form.validate() == False:
+            return render_template('signup.html', form=form)
+        else:
+            newuser = User(form.username.data, form.password.data)
+            db.session.add(newuser)
+            db.session.commit()
+
+            session['username'] = newuser.username
+
+            return redirect(url_for('default_display'))
+
+    elif request.method == 'GET':
+        return render_template('signup.html', form=form)
+
+
 @app.route('/signin', methods=['GET', 'POST'])
 def signin():
     form = SigninForm()
 
-    if 'email' in session:
-        return redirect(url_for('hello_world'))
+    if 'username' in session:
+        return redirect(url_for('default_display'))
 
     if request.method == 'POST':
-        if form.name.data == user and form.password.data == password:
-            session['email'] = form.name.data
-            return redirect(url_for('default_display'))
-        else:
+        if form.validate() == False:
             return render_template('signin.html', form=form)
+        else:
+            session['username'] = form.username.data
+            return redirect(url_for('default_display'))
 
     elif request.method == 'GET':
         return render_template('signin.html', form=form)
 
 
 
-    # vim: set ts=4 sw=4 et :
+        # vim: set ts=4 sw=4 et :

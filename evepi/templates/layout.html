@@ -1,31 +1,36 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title><Generic Page></title>
+    <title>Kals Eve Tool</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
 <body>
 <header>
     <div class="container">
-        <h1 class="logo">Generic Page</h1>
+        <h1 class="logo">Kals Eve Tool</h1>
         <strong>
             <nav>
                 <ul class="menu">
                     <li><a href="{{ url_for('default_display') }}">Home</a></li>
-                    {% if 'email' in session %}
+                    {% if 'username' in session %}
 
-                        <li><a href="#">Top</a></li>
-                        <li><a href="#">Top</a>
+                        <li><a href="#">Wallet</a></li>
+                        <li><a href="#">PI</a></li>
+                        <li><a href="#">Skills</a>
                             <ul class="submenu">
-                                <li><a href="#">Sub</a></li>
+                                <li><a href="#">Tracker</a></li>
+                                <li><a href="#">Packs</a></li>
                             </ul>
                         </li>
                         <li><a href="#">Admin</a>
                             <ul class="submenu">
-                                <li><a href="">Action</a></li>
+                                <li><a href="">APIs</a></li>
                             </ul>
                         </li>
+                        <li><a href="{{ url_for('signout') }}">Sign Out</a></li>
+
                     {% else %}
+                        <li><a href="{{ url_for('signup') }}">Register</a></li>
                         <li><a href="{{ url_for('signin') }}">Sign in</a></li>
                     {% endif %}
                 </ul>

@@ -6,17 +6,30 @@ from werkzeug.security import generate_password_hash, check_password_hash
 db = SQLAlchemy()
 
 
-class Table(db.Model):
-    Value1 = db.Column(db.Integer, unique=True, primary_key=True)
-    Value2 = db.Column(db.Text, unique=False)
+class User(db.Model):
+    id = db.Column(db.Integer, unique=True, primary_key=True)
+    username = db.Column(db.Text, unique=True)
+    pwdhash = db.Column(db.Text, unique=False)
+    last_login = db.Column(db.DateTime, unique=False)
+
+    def __init__(self, username, password):
+        self.username = username
+        self.set_password(password)
+
+    def set_password(self, password):
+        self.pwdhash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.pwdhash, password)
 
 
 class APIs(db.Model):
     id = db.Column(db.Integer, unique=True, primary_key=True)
     keyID = db.Column(db.Integer, unique=True)
     vCode = db.Column(db.Text, unique=True)
+    user_id = db.Column(db.Integer, unique=False)
 
-class character(db.Model):
+class Character(db.Model):
     id = db.Column(db.Integer, unique=True, primary_key=True)
     characterID = db.Column(db.Integer, unique=True)
 
