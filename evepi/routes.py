@@ -3,7 +3,7 @@ import os
 from evepi.forms import SigninForm, SignupForm, ApiForm
 
 from models import db, initial_db, User, Api
-from flask import render_template, Markup, session, redirect, url_for, request, jsonify, abort
+from flask import render_template, flash, Markup, session, redirect, url_for, request, jsonify, abort
 
 from ConfigParser import ConfigParser
 
@@ -63,9 +63,12 @@ def display_apis():
         return redirect(url_for('default_display'))
 
     if request.method == 'POST':
-        newapi = Api(keyID=form.keyID.data,vCode=form.vCode.data,user_id=session['id'],status=True)
-        db.session.add(newapi)
-        db.session.commit()
+        if form.validate() == False:
+            flash('All fields are required!')
+        else:
+            newapi = Api(keyID=form.keyID.data,vCode=form.vCode.data,user_id=session['id'],status=True)
+            db.session.add(newapi)
+            db.session.commit()
 
     apis = Api.query.filter_by(user_id=session['id']).all()
     content = ""

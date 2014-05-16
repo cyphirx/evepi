@@ -55,6 +55,11 @@ class ApiForm(Form):
     def validate(self):
         if not Form.validate(self):
             return False
+        #TODO Set up numeric validation for keyID
+#        if self.keyID.data == "" or self.vCode.data == "":
+#            self.keyID.errors.append("Please enter a valid keyID and vCode")
+#            return False
+
         api = Api.query.filter_by(keyID=int(self.keyID.data)).first()
 
         if not api:

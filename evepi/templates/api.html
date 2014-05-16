@@ -7,6 +7,13 @@
         {{ apis }}
     </table>
   <h2>Add an API key</h2>
+  {% for message in form.keyID.errors %}
+    <div class="flash">{{ message }}</div>
+  {% endfor %}
+
+  {% for message in form.vCode.errors %}
+    <div class="flash">{{ message }}</div>
+  {% endfor %}
   <form action="{{ url_for('display_apis') }}" method=post>
       {{ form.hidden_tag() }}
 
