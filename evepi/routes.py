@@ -1,6 +1,6 @@
 from evepi import app
 import os
-from evepi.forms import SigninForm, SignupForm
+from evepi.forms import SigninForm, SignupForm, ApiForm
 
 from models import db, initial_db, User
 from flask import render_template, Markup, session, redirect, url_for, request, jsonify, abort
@@ -53,6 +53,21 @@ else:
 def default_display():
     return render_template('index.html')
 
+
+# API Management section
+@app.route('/api', methods=['GET', 'POST'])
+def display_apis():
+    form = ApiForm()
+
+    if 'username' not in session:
+        return redirect(url_for('default_display'))
+
+
+    return render_template('api.html', form=form)
+
+
+
+# Registration Section
 
 @app.route('/signout')
 def signout():

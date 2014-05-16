@@ -23,7 +23,7 @@ class User(db.Model):
         return check_password_hash(self.pwdhash, password)
 
 
-class APIs(db.Model):
+class Api(db.Model):
     __tablename__ = "apis"
     id = db.Column(db.Integer, unique=True, primary_key=True)
     keyID = db.Column(db.Integer, unique=True)

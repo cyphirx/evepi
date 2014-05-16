@@ -1,6 +1,6 @@
 from flask.ext.wtf import Form
 from wtforms import TextField, validators, PasswordField, SubmitField
-from models import db, User
+from models import db, User, Api
 
 
 class SigninForm(Form):
@@ -24,8 +24,6 @@ class SigninForm(Form):
             return False
 
 
-
-
 class SignupForm(Form):
     username = TextField("Username", [validators.Required("Please enter your username.")])
     password = PasswordField('Password', [validators.Required("Please enter a password.")])
@@ -44,3 +42,23 @@ class SignupForm(Form):
             return False
         else:
             return True
+
+
+class ApiForm(Form):
+    vCode = TextField("vCode", [validators.Required("Please enter your vCode.")])
+    keyID = TextField('KeyID', [validators.Required("Please enter you keyID.")])
+    submit = SubmitField("Add")
+
+    def __init__(self, *args, **kwargs):
+        Form.__init__(self, *args, **kwargs)
+
+    def validate(self):
+        if not Form.validate(self):
+            return False
+        api = Api.query.filter_by(keyID=int(self.keyID.data)).first()
+
+        if not api:
+            return True
+        else:
+            self.keyID.errors.append("KeyID must be unique")
+            return False

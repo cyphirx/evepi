@@ -95,9 +95,10 @@ form label {
 }
 
 /* Signup form */
-form input#name,
-form input#email,
-form input#password {
+form input#username,
+form input#password,
+form input#keyID,
+form input#vCode {
   width: 400px;
   background-color: #fafafa;
   -webkit-border-radius: 3px;

@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+{% block content %}
+  <div class="jumbo">
+    <h2>API Keys</h2>
+    <table border="1">
+        <thead><th>keyID</th><th>vCode</th><th>Last Checked</th><th>Functions</th></thead>
+        <tr><td>123456</td><td>assdfghjqwery12345717sd</td><td>2014-04-04 04:12:10</td><td>Things</td></tr>
+    </table>
+  <h2>Add an API key</h2>
+  <form action="{{ url_for('display_apis') }}" method=post>
+      {{ form.keyID.label }}
+      {{ form.keyID }}
+      {{ form.vCode.label }}
+      {{ form.vCode }}
+      {{ form.submit }}
+
+  </form>
+
+  </div>
+{% endblock %}
