@@ -3,7 +3,8 @@ import os
 from evepi.forms import SigninForm, SignupForm, ApiForm
 
 from models import db, initial_db, User, Api
-from flask import render_template, flash, Markup, session, redirect, url_for, request, jsonify, abort
+from flask import render_template, flash, Markup, session, redirect, url_for, request, jsonify, abort, send_from_directory
+from werkzeug.utils import secure_filename
 
 from ConfigParser import ConfigParser
 
@@ -85,8 +86,11 @@ def display_apis():
     return render_template('api.html', form=form, apis=Markup(content))
 
 
+# Skill browser section
 
-# Registration Section
+
+
+
 
 @app.route('/signout')
 def signout():
