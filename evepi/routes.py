@@ -2,7 +2,7 @@ from evepi import app
 import os
 from evepi.forms import SigninForm, SignupForm, ApiForm
 
-from models import db, initial_db, User
+from models import db, initial_db, User, Api
 from flask import render_template, Markup, session, redirect, url_for, request, jsonify, abort
 
 from ConfigParser import ConfigParser
@@ -62,8 +62,24 @@ def display_apis():
     if 'username' not in session:
         return redirect(url_for('default_display'))
 
+    if request.method == 'POST':
+        newapi = Api(keyID=form.keyID.data,vCode=form.vCode.data,user_id=session['id'],status=True)
+        db.session.add(newapi)
+        db.session.commit()
 
-    return render_template('api.html', form=form)
+    apis = Api.query.filter_by(user_id=session['id']).all()
+    content = ""
+    #TODO Add API update, delete functions
+    for api in apis:
+        content += "<tr>"
+        content += "<td>" + str(api.keyID) + "</td>"
+        content += "<td>" + api.vCode + "</td>"
+        content += "<td>" + str(api.last_checked) + "</td>"
+        content += "<td>Things</td>"
+        content += "</tr>"
+
+
+    return render_template('api.html', form=form, apis=Markup(content))
 
 
 
@@ -109,7 +125,10 @@ def signin():
         if form.validate() == False:
             return render_template('signin.html', form=form)
         else:
-            session['username'] = form.username.data
+            user = User.query.filter_by(username=form.username.data).first()
+            if user:
+                session['username'] = user.username
+                session['id'] = user.id
             return redirect(url_for('default_display'))
 
     elif request.method == 'GET':
