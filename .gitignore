@@ -12,6 +12,7 @@ cache.db
 .metadata
 bin/
 tmp/
+uploads/
 *.tmp
 *.bak
 *.swp

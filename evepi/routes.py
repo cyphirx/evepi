@@ -1,9 +1,11 @@
+import pprint
 from evepi import app
 import os
 from evepi.forms import SigninForm, SignupForm, ApiForm
-
-from models import db, initial_db, User, Api
-from flask import render_template, flash, Markup, session, redirect, url_for, request, jsonify, abort, send_from_directory
+import xml.etree.ElementTree as ET
+from models import db, initial_db, User, Api, SkillPack, SkillAttr
+from flask import render_template, flash, Markup, session, redirect, url_for, request, jsonify, abort, \
+    send_from_directory
 from werkzeug.utils import secure_filename
 
 from ConfigParser import ConfigParser
@@ -26,7 +28,7 @@ def ConfigSectionMap(section):
 Config = ConfigParser()
 Config.read("settings.ini")
 cached_time = ""
-
+ALLOWED_EXTENSIONS = set(['txt', 'xml'])
 initial_db()
 
 if os.path.isfile('settings.ini'):
@@ -48,6 +50,13 @@ else:
     # stopgap until we can get connected to Auth
     user = os.environ['app_admin_user']
     password = os.environ['app_admin_password']
+
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+
+
 
 
 @app.route('/')
@@ -87,9 +96,87 @@ def display_apis():
 
 
 # Skill browser section
+@app.route('/packs')
+def display_skillpacks():
+    return render_template('skillpacks.html')
+
+
+# Route that will process the file upload
+@app.route('/upload', methods=['POST'])
+def upload():
+    # Get the name of the uploaded file
+    file = request.files['file']
+
+    # Check if the file is one of the allowed types/extensions
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+        # Kick off processing routine
+        #f = open(app.config['UPLOAD_FOLDER'] + "\\" + filename, 'r')
+        #read = f.read()
+        lookup = ET.parse(app.config['UPLOAD_FOLDER'] + "\\" + filename)
+        lookup_root = lookup.getroot()
+
+        # Get plan name
+        plan = lookup_root.get('name')
+        print plan
+
+        skill_plan = SkillPack(name=plan,filename=filename,status=True)
+        db.session.add(skill_plan)
+        db.session.commit()
+
+        print skill_plan.id
+
+        # Skill attributes
+        for child in lookup_root:
+            if child.tag != "entry":
+                continue
+            skill = child.get('skill')
+            priority = child.get('priority')
+            skillID = child.get('skillID')
+            level = child.get('level')
+
+            skill_attrib = SkillAttr(pack_id=skill_plan.id, skill_id=skillID, priority=priority,skill_name=skill,value=level)
+            db.session.add(skill_attrib)
+
+        db.session.commit()
+        return redirect(url_for('uploaded_file',
+                                filename=filename))
+
+@app.route('/testing')
+def test_query():
+    sql = '''select skill_name , MAX(case when priority <= 10 then value end) AS required, MAX(case when priority > 10 then value end) AS recommended
+from skill_attr
+where
+  pack_id = 1
+group by skill_name
+'''
+    skills = db.engine.execute(sql).fetchall()
+
+    for skill in skills:
+        if not skill.required:
+            required = 0
+        else:
+            required = skill.required
+        if not skill.recommended:
+            recommended = required
+        else:
+            recommended = skill.recommended
+        print skill.skill_name, required, recommended
+
+    return "hi"
 
 
 
+# This route is expecting a parameter containing the name
+# of a file. Then it will locate that file on the upload
+# directory and show it on the browser, so if the user uploads
+# an image, that image is going to be show after the upload
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'],
+                               filename)
 
 
 @app.route('/signout')

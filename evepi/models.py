@@ -23,6 +23,23 @@ class User(db.Model):
         return check_password_hash(self.pwdhash, password)
 
 
+class SkillPack(db.Model):
+    id = db.Column(db.Integer, unique=True, primary_key=True)
+    name = db.Column(db.Text, unique=True)
+    filename = db.Column(db.Text, unique=False)
+    status = db.Column(db.Boolean)
+
+
+
+class SkillAttr(db.Model):
+    id = db.Column(db.Integer, unique=True, primary_key=True)
+    pack_id = db.Column(db.Integer, unique=False)
+    skill_id = db.Column(db.Integer, unique=False)
+    skill_name = db.Column(db.Text, unique=False)
+    priority = db.Column(db.Integer, unique=False)
+    value = db.Column(db.Integer, unique=False)
+
+
 class Api(db.Model):
     __tablename__ = "apis"
     id = db.Column(db.Integer, unique=True, primary_key=True)
