@@ -57,6 +57,21 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 
+def pull_character(keyID, vCode):
+    pass
+
+
+def pull_apis(keyID, vCode):
+    pass
+
+
+def update_characters(characterID):
+    print characterID
+    pass
+
+
+def update_apis():
+    pass
 
 
 @app.route('/')
@@ -76,9 +91,12 @@ def display_apis():
         if form.validate() == False:
             flash('All fields are required!')
         else:
+
+
             newapi = Api(keyID=form.keyID.data,vCode=form.vCode.data,user_id=session['id'],status=True)
             db.session.add(newapi)
             db.session.commit()
+            update_apis()
 
     apis = Api.query.filter_by(user_id=session['id']).all()
     content = ""
