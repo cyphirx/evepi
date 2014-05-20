@@ -91,7 +91,7 @@ def display_apis():
         if form.validate() == False:
             flash('All fields are required!')
         else:
-
+            url = apiURL + ""
 
             newapi = Api(keyID=form.keyID.data,vCode=form.vCode.data,user_id=session['id'],status=True)
             db.session.add(newapi)

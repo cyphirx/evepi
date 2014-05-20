@@ -41,25 +41,37 @@ class SkillAttr(db.Model):
 
 
 class Api(db.Model):
-    __tablename__ = "apis"
+    __tablename__ = "char_api"
     id = db.Column(db.Integer, unique=True, primary_key=True)
     keyID = db.Column(db.Integer, unique=True)
     vCode = db.Column(db.Text, unique=True)
-    keyType = db.Column(db.Text, unique=False)
-    user_id = db.Column(db.Integer, unique=False)
-    status = db.Column(db.Boolean, unique=False)
-    last_checked = db.Column(db.DateTime, unique=False)
+    keyType = db.Column(db.Text)
+    accessMask = db.Column(db.Integer)
+    user_id = db.Column(db.Integer)
+    status = db.Column(db.Boolean)
+    last_checked = db.Column(db.DateTime)
 
 class Character(db.Model):
+    __tablename__ = "char_main"
     id = db.Column(db.Integer, unique=True, primary_key=True)
-    api_id = db.Column(db.Integer, unique=False)
-    characterID = db.Column(db.Integer, unique=True)
-    characterName = db.Column(db.Text, unique=True)
+    api_id = db.Column(db.Integer)
+    characterID = db.Column(db.Integer)
+    characterName = db.Column(db.Text)
+    corpID = db.Column(db.Integer)
+    corporationName = db.Column(db.Text)
+    allianceID = db.Column(db.Integer)
+    allianceName = db.Column(db.Text)
+    cloneSP = db.Column(db.Integer)
+    last_checked = db.Column(db.Integer)
 
 
 class CharacterSkills(db.Model):
+    __tablename__ = "char_skills"
     id = db.Column(db.Integer, unique=True, primary_key=True)
     characterID = db.Column(db.Integer, unique=False)
+    skillID = db.Column(db.Integer, unique=False)
+    skillspoints = db.Column(db.Integer, unique=False)
+    level = db.Column(db.Integer, unique=False)
 
 
 def initial_db():
