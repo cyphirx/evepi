@@ -1,5 +1,6 @@
 import pprint
 import urllib2
+import datetime
 from evepi import app
 import os
 from evepi.forms import SigninForm, SignupForm, ApiForm
@@ -102,12 +103,14 @@ def display_apis():
 
             api_tree = ET.parse(f)
             api_root= api_tree.getroot()
+            dateStamp = api_root.find('currentTime')
             e = api_root.find('./result/key')
             type = e.get('type')
-            expires = e.get('expires')
+            mask = e.get('accessMask')
             # From here, update char_api
-            print type, expires
-
+            newapi = Api(keyID=form.keyID.data,vCode=form.vCode.data,user_id=session['id'],keyType=type,accessMask=mask,status=True, last_checked=datetime.datetime.now())
+            db.session.add(newapi)
+            db.session.commit()
             #Retrieve all characters returned
             e = api_root.findall('./result/key/rowset/row')
             for i in e:
