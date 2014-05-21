@@ -1,4 +1,5 @@
 import pprint
+import urllib2
 from evepi import app
 import os
 from evepi.forms import SigninForm, SignupForm, ApiForm
@@ -91,12 +92,34 @@ def display_apis():
         if form.validate() == False:
             flash('All fields are required!')
         else:
-            url = apiURL + ""
+            url = apiURL + "/account/APIKeyInfo.xml.aspx?keyID=" + form.keyID.data + "&vCode=" + form.vCode.data
+            request_api = urllib2.Request(url, headers={"Accept": "application/xml"})
+            try:
+                f = urllib2.urlopen(request_api)
+            except:
+                print url
+                return "Error retrieving character ids url"
 
-            newapi = Api(keyID=form.keyID.data,vCode=form.vCode.data,user_id=session['id'],status=True)
-            db.session.add(newapi)
-            db.session.commit()
-            update_apis()
+            api_tree = ET.parse(f)
+            api_root= api_tree.getroot()
+            e = api_root.find('./result/key')
+            type = e.get('type')
+            expires = e.get('expires')
+            # From here, update char_api
+            print type, expires
+
+            #Retrieve all characters returned
+            e = api_root.findall('./result/key/rowset/row')
+            for i in e:
+                # Update character in table
+                print i.get('characterID')
+
+                # Kick off updated api query for character
+
+            #newapi = Api(keyID=form.keyID.data,vCode=form.vCode.data,user_id=session['id'],status=True)
+            #db.session.add(newapi)
+            #db.session.commit()
+            #update_apis()
 
     apis = Api.query.filter_by(user_id=session['id']).all()
     content = ""
