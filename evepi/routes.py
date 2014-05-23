@@ -5,7 +5,7 @@ from evepi import app
 import os
 from evepi.forms import SigninForm, SignupForm, ApiForm
 import xml.etree.ElementTree as ET
-from models import db, initial_db, User, Api, SkillPack, SkillAttr
+from models import db, initial_db, User, Api, SkillPack, SkillAttr, Character, CharacterSkills
 from flask import render_template, flash, Markup, session, redirect, url_for, request, jsonify, abort, \
     send_from_directory
 from werkzeug.utils import secure_filename
@@ -82,6 +82,47 @@ def default_display():
 
 
 # API Management section
+def add_character(id, characterID):
+    api = Api.query.filter_by(id=id).first()
+
+    url = apiURL + "/char/CharacterSheet.xml.aspx?keyID=" + str(api.keyID) + "&vCode=" + api.vCode + "&characterID=" + str(characterID)
+    request_api = urllib2.Request(url, headers={"Accept": "application/xml"})
+    try:
+        f = urllib2.urlopen(request_api)
+    except:
+        print url
+        return "Error retrieving character ids url"
+
+    char_tree = ET.parse(f)
+    char_root= char_tree.getroot()
+    name = char_root.find('result/name').text
+    corpID = int(char_root.find('result/corporationID').text)
+    corpName = char_root.find('result/corporationName').text
+    allianceID = int(char_root.find('result/allianceID').text)
+    if allianceID != 0:
+        allianceName = char_root.find('result/allianceName').text
+    else:
+        allianceName = ""
+    # Attributes
+    intelligence = int(char_root.find('result/attributes/intelligence').text)
+    memory = int(char_root.find('result/attributes/memory').text)
+    charisma = int(char_root.find('result/attributes/charisma').text)
+    perception = int(char_root.find('result/attributes/perception').text)
+    willpower = int(char_root.find('result/attributes/willpower').text)
+
+    newchar = Character(api_id=api.id, characterID=characterID, characterName=name, corpID=corpID, corporationName=corpName,allianceID=allianceID, allianceName=allianceName,intelligence=intelligence,memory=memory,charisma=charisma,perception=perception, willpower=willpower, last_checked=datetime.datetime.now())
+    db.session.add(newchar)
+    # Retrieve all skills and populate table
+    skills = char_root.findall('./result/*[@name="skills"]//')
+    for skill in skills:
+        typeID = skill.get('typeID')
+        skillpoints = skill.get('skillpoints')
+        level = skill.get('level')
+        newskill = CharacterSkills(characterID=characterID, skillID=typeID, skillpoints=skillpoints, level=level)
+        db.session.add(newskill)
+
+    db.session.commit()
+
 @app.route('/api', methods=['GET', 'POST'])
 def display_apis():
     form = ApiForm()
@@ -99,31 +140,33 @@ def display_apis():
                 f = urllib2.urlopen(request_api)
             except:
                 print url
-                return "Error retrieving character ids url"
+                return "Error retrieving api url"
 
             api_tree = ET.parse(f)
             api_root= api_tree.getroot()
-            dateStamp = api_root.find('currentTime')
             e = api_root.find('./result/key')
             type = e.get('type')
+            #TODO add error checking on keytype
             mask = e.get('accessMask')
             # From here, update char_api
             newapi = Api(keyID=form.keyID.data,vCode=form.vCode.data,user_id=session['id'],keyType=type,accessMask=mask,status=True, last_checked=datetime.datetime.now())
             db.session.add(newapi)
             db.session.commit()
             #Retrieve all characters returned
-            e = api_root.findall('./result/key/rowset/row')
-            for i in e:
-                # Update character in table
-                print i.get('characterID')
+            if type == "Account":
+                e = api_root.findall('./result/key/rowset/row')
+                for i in e:
+                    # Update character in table
+                    characterID = int(i.get('characterID'))
+                    add_character(newapi.id, characterID)
 
-                # Kick off updated api query for character
+                    # Kick off updated api query for character
 
             #newapi = Api(keyID=form.keyID.data,vCode=form.vCode.data,user_id=session['id'],status=True)
             #db.session.add(newapi)
             #db.session.commit()
             #update_apis()
-
+            db.session.commit()
     apis = Api.query.filter_by(user_id=session['id']).all()
     content = ""
     #TODO Add API update, delete functions

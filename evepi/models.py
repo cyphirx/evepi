@@ -62,6 +62,12 @@ class Character(db.Model):
     allianceID = db.Column(db.Integer)
     allianceName = db.Column(db.Text)
     cloneSP = db.Column(db.Integer)
+    intelligence = db.Column(db.Integer)
+    memory = db.Column(db.Integer)
+    charisma = db.Column(db.Integer)
+    perception = db.Column(db.Integer)
+    willpower = db.Column(db.Integer)
+
     last_checked = db.Column(db.Integer)
 
 
@@ -70,7 +76,7 @@ class CharacterSkills(db.Model):
     id = db.Column(db.Integer, unique=True, primary_key=True)
     characterID = db.Column(db.Integer, unique=False)
     skillID = db.Column(db.Integer, unique=False)
-    skillspoints = db.Column(db.Integer, unique=False)
+    skillpoints = db.Column(db.Integer, unique=False)
     level = db.Column(db.Integer, unique=False)
 
 
