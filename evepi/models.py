@@ -80,6 +80,21 @@ class CharacterSkills(db.Model):
     level = db.Column(db.Integer, unique=False)
 
 
+class SkillRef(db.Model):
+    __tablename__ = 'skills_ref'
+    id = db.Column(db.Integer, unique=True, primary_key=True)
+    skillID = db.Column(db.Integer, unique=True)
+    skillName = db.Column(db.Text)
+    groupID = db.Column(db.Integer)
+    rank = db.Column(db.Float)
+
+
+class SkillGroup(db.Model):
+    __tablename__ = 'skills_group'
+    id = db.Column(db.Integer, unique=True, primary_key=True)
+    groupID = db.Column(db.Integer, unique=True)
+    groupName = db.Column(db.Text)
+
 def initial_db():
     from flask import Flask
     from sqlalchemy import exists

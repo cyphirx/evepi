@@ -1,3 +1,4 @@
+import json
 import pprint
 import urllib2
 import datetime
@@ -5,7 +6,8 @@ from evepi import app
 import os
 from evepi.forms import SigninForm, SignupForm, ApiForm
 import xml.etree.ElementTree as ET
-from models import db, initial_db, User, Api, SkillPack, SkillAttr, Character, CharacterSkills
+from sqlalchemy import exists
+from models import db, initial_db, User, Api, SkillPack, SkillAttr, Character, CharacterSkills, SkillRef, SkillGroup
 from flask import render_template, flash, Markup, session, redirect, url_for, request, jsonify, abort, \
     send_from_directory
 from werkzeug.utils import secure_filename
@@ -38,6 +40,7 @@ if os.path.isfile('settings.ini'):
     debug = ConfigSectionMap("general")['debug']
     interface = ConfigSectionMap("general")['interface']
     port = int(os.environ.get("PORT", 5000))
+    localapi = ConfigSectionMap("general")['localapi']
 
     # stopgap until we can get connected to Auth
     user = ConfigSectionMap("users")['user']
@@ -316,5 +319,26 @@ def signin():
         return render_template('signin.html', form=form)
 
 
-
+@app.route('/dbcheck')
+def do_db_check():
+    if not db.session.query(exists().where(SkillRef.skillName == "Drones")).scalar():
+        # This is such a bad idea, but retrieve API's from config'd api service
+        url = localapi + "/skillNames"
+        response = urllib2.urlopen(url)
+        data = json.load(response)
+        print "Populating Skills table"
+        for skill in data['skills']:
+            Skill = SkillRef(skillID=int(skill['skillID']), skillName=skill['skillName'],groupID=int(skill['groupID']),rank=float(skill['rank']))
+            db.session.add(Skill)
+    if not db.session.query(exists().where(SkillGroup.groupName == "Armor")).scalar():
+        # This is such a bad idea, but retrieve API's from config'd api service
+        url = localapi + "/groupNames"
+        response = urllib2.urlopen(url)
+        data = json.load(response)
+        print "Populating Groups table"
+        for group in data['groups']:
+            Group = SkillGroup(groupID=int(group['groupID']), groupName=group['groupName'])
+            db.session.add(Group)
+    db.session.commit()
+    return "Hello"
         # vim: set ts=4 sw=4 et :
