@@ -1,12 +1,15 @@
 import json
+from math import ceil, sqrt
 import pprint
 import urllib2
 import datetime
+import math
 from evepi import app
 import os
 from evepi.forms import SigninForm, SignupForm, ApiForm
 import xml.etree.ElementTree as ET
 from sqlalchemy import exists
+from evepi.functions import levelFromSp
 from models import db, initial_db, User, Api, SkillPack, SkillAttr, Character, CharacterSkills, SkillRef, SkillGroup
 from flask import render_template, flash, Markup, session, redirect, url_for, request, jsonify, abort, \
     send_from_directory
@@ -322,6 +325,16 @@ def signin():
 
     elif request.method == 'GET':
         return render_template('signin.html', form=form)
+
+
+@app.route('/formula')
+def do_formula():
+    rank = 1
+    sp = 300
+# log_2(sillpointsatlevel / 250 * Skillrank) + 2.5 = 2.5 * skilllevel
+# math.log((sillpointsatlevel / 250 * Skillrank),2) + 2.5 = 2.5 * skilllevel
+    print levelFromSp(sp, rank)
+    return ""
 
 
 @app.route('/dbcheck')
