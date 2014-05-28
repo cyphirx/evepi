@@ -24,6 +24,7 @@ class User(db.Model):
 
 
 class SkillPack(db.Model):
+    __tablename__ = "pack_main"
     id = db.Column(db.Integer, unique=True, primary_key=True)
     name = db.Column(db.Text, unique=True)
     filename = db.Column(db.Text, unique=False)
@@ -32,6 +33,7 @@ class SkillPack(db.Model):
 
 
 class SkillAttr(db.Model):
+    __tablename__ = "pack_attr"
     id = db.Column(db.Integer, unique=True, primary_key=True)
     pack_id = db.Column(db.Integer, unique=False)
     skill_id = db.Column(db.Integer, unique=False)
@@ -81,7 +83,7 @@ class CharacterSkills(db.Model):
 
 
 class SkillRef(db.Model):
-    __tablename__ = 'skills_ref'
+    __tablename__ = 'ref_skills'
     id = db.Column(db.Integer, unique=True, primary_key=True)
     skillID = db.Column(db.Integer, unique=True)
     skillName = db.Column(db.Text)
@@ -90,7 +92,7 @@ class SkillRef(db.Model):
 
 
 class SkillGroup(db.Model):
-    __tablename__ = 'skills_group'
+    __tablename__ = 'ref_groups'
     id = db.Column(db.Integer, unique=True, primary_key=True)
     groupID = db.Column(db.Integer, unique=True)
     groupName = db.Column(db.Text)

@@ -101,11 +101,16 @@ def add_character(id, characterID):
     name = char_root.find('result/name').text
     corpID = int(char_root.find('result/corporationID').text)
     corpName = char_root.find('result/corporationName').text
-    allianceID = int(char_root.find('result/allianceID').text)
-    if allianceID != 0:
-        allianceName = char_root.find('result/allianceName').text
+    if char_root.find('result/allianceID'):
+        allianceID = int(char_root.find('result/allianceID').text)
+        if allianceID != 0:
+            allianceName = char_root.find('result/allianceName').text
+        else:
+            allianceName = ""
     else:
+        allianceID = 0
         allianceName = ""
+
     # Attributes
     intelligence = int(char_root.find('result/attributes/intelligence').text)
     memory = int(char_root.find('result/attributes/memory').text)
