@@ -1,5 +1,6 @@
 from flask.ext.sqlalchemy import SQLAlchemy
-from sqlalchemy import and_
+from sqlalchemy import and_, ForeignKey
+from sqlalchemy.orm import relationship
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
@@ -23,7 +24,7 @@ class User(db.Model):
         return check_password_hash(self.pwdhash, password)
 
 
-class SkillPack(db.Model):
+class PackSkills(db.Model):
     __tablename__ = "pack_main"
     id = db.Column(db.Integer, unique=True, primary_key=True)
     name = db.Column(db.Text, unique=True)
@@ -32,7 +33,7 @@ class SkillPack(db.Model):
 
 
 
-class SkillAttr(db.Model):
+class PackAttr(db.Model):
     __tablename__ = "pack_attr"
     id = db.Column(db.Integer, unique=True, primary_key=True)
     pack_id = db.Column(db.Integer, unique=False)
@@ -43,7 +44,7 @@ class SkillAttr(db.Model):
 
 
 class Api(db.Model):
-    __tablename__ = "char_api"
+    __tablename__ = "api_main"
     id = db.Column(db.Integer, unique=True, primary_key=True)
     keyID = db.Column(db.Integer, unique=True)
     vCode = db.Column(db.Text, unique=True)
@@ -71,12 +72,13 @@ class Character(db.Model):
     willpower = db.Column(db.Integer)
 
     last_checked = db.Column(db.Integer)
+    skills = relationship("CharacterSkills")
 
 
 class CharacterSkills(db.Model):
     __tablename__ = "char_skills"
     id = db.Column(db.Integer, unique=True, primary_key=True)
-    characterID = db.Column(db.Integer, unique=False)
+    characterID = db.Column(db.Integer, ForeignKey('Character.id'))
     skillID = db.Column(db.Integer, unique=False)
     skillpoints = db.Column(db.Integer, unique=False)
     level = db.Column(db.Integer, unique=False)

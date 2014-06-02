@@ -10,7 +10,7 @@ from evepi.forms import SigninForm, SignupForm, ApiForm
 import xml.etree.ElementTree as ET
 from sqlalchemy import exists
 from evepi.functions import levelFromSp
-from models import db, initial_db, User, Api, SkillPack, SkillAttr, Character, CharacterSkills, SkillRef, SkillGroup
+from models import db, initial_db, User, Api, PackSkills, PackAttr, Character, CharacterSkills, SkillRef, SkillGroup
 from flask import render_template, flash, Markup, session, redirect, url_for, request, jsonify, abort, \
     send_from_directory
 from werkzeug.utils import secure_filename
@@ -134,6 +134,26 @@ def add_character(id, characterID):
 
     db.session.commit()
 
+
+@app.route('/update/character/<int:id>')
+def update_character(id):
+    if 'username' not in session:
+        return redirect(url_for('default_display'))
+
+    sql = "SELECT user_id, char_main.api_id FROM char_main INNER JOIN api_main ON char_main.api_id = api_main.id WHERE api_main.id = " + str(session['id']) + " AND char_main.characterID = " + str(id) + " LIMIT 1"
+
+    record = db.engine.execute(sql).first()
+
+    if record:
+        # Need to truncate main and skills tables for id
+        print record.user_id, record.api_id
+        print "doing an update"
+    else:
+        print "Oh my"
+
+    return ""
+
+
 @app.route('/api', methods=['GET', 'POST'])
 def display_apis():
     form = ApiForm()
@@ -183,9 +203,9 @@ def display_apis():
     #TODO Add API update, delete functions
     for api in apis:
         content += "<tr>"
-        content += "<td>" + str(api.keyID) + "</td>"
-        content += "<td>" + api.vCode + "</td>"
-        content += "<td>" + str(api.last_checked) + "</td>"
+        content += "<td> " + str(api.keyID) + " </td>"
+        content += "<td> " + api.vCode[:6] + ".... </td>"
+        content += "<td> " + str(api.last_checked)[:-7] + " </td>"
         content += "<td>Things</td>"
         content += "</tr>"
 
@@ -220,7 +240,7 @@ def upload():
         plan = lookup_root.get('name')
         print plan
 
-        skill_plan = SkillPack(name=plan,filename=filename,status=True)
+        skill_plan = PackSkills(name=plan,filename=filename,status=True)
         db.session.add(skill_plan)
         db.session.commit()
 
@@ -235,7 +255,7 @@ def upload():
             skillID = child.get('skillID')
             level = child.get('level')
 
-            skill_attrib = SkillAttr(pack_id=skill_plan.id, skill_id=skillID, priority=priority,skill_name=skill,value=level)
+            skill_attrib = PackAttr(pack_id=skill_plan.id, skill_id=skillID, priority=priority,skill_name=skill,value=level)
             db.session.add(skill_attrib)
 
         db.session.commit()
